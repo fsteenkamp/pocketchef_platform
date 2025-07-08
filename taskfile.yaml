@@ -1,0 +1,10 @@
+version: "3"
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list-all
+  dev:
+    silent: true
+    cmds:
+      - go run ./services/api
