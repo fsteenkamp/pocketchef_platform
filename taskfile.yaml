@@ -4,7 +4,16 @@ tasks:
     silent: true
     cmds:
       - task --list-all
+  migrate/local:
+    silent: true
+    dotenv: ["./env/dev.env"]
+    cmds:
+      - tern migrate --migrations ./data/migrations
+      - sqlc generate
   dev:
     silent: true
+    dotenv: ["./env/dev.env"]
     cmds:
-      - go run ./services/api
+      - templ generate
+      - tailwindcss -i ./in.css -o ./api/assets/styles.css -m
+      - go run ./api

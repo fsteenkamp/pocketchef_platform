@@ -1,0 +1,13 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    database:
+      uri: postgresql://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:5432/pocketchef
+    queries: "data/queries"
+    schema: "data/migrations"
+    gen:
+      go:
+        package: "data"
+        out: "./data"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
