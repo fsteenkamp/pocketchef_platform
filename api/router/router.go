@@ -34,5 +34,7 @@ func Init(
 func (s service) HomeLoader(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 
-	return page.Home("Ferdz").Render(ctx, w)
+	return page.Home(page.HomeData{
+		Req: r,
+	}).Render(ctx, w)
 }

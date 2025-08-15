@@ -1,0 +1,3 @@
+- start with footer
+- don't be lazy, use the database
+  - add data models
