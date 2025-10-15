@@ -10,6 +10,12 @@ tasks:
     cmds:
       - tern migrate --migrations ./data/migrations
       - sqlc generate
+  bootstrap/local:
+    silent: true
+    desc: Create an admin user locally.
+    dotenv: ["./env/dev.env"]
+    cmds:
+      - mage bootstrap
   dev:
     silent: true
     dotenv: ["./env/dev.env"]

@@ -9,7 +9,12 @@ import (
 	"net/http"
 )
 
-type service struct {
+type siteService struct {
+	l *log.Logger
+	q *data.Queries
+}
+
+type apiService struct {
 	l *log.Logger
 	q *data.Queries
 }
@@ -20,18 +25,32 @@ func Init(
 	q *data.Queries,
 	assets embed.FS,
 ) {
-	s := service{
+	site := siteService{
+		l: l,
+		q: q,
+	}
+
+	api := apiService{
 		l: l,
 		q: q,
 	}
 
 	fsHandler := http.FileServer(http.FS(assets))
-
 	app.Mux.Handle("GET /assets/{path}", fsHandler)
-	app.Handle(http.MethodGet, "/", s.HomeLoader)
+
+	// ================================================================
+	// Website Routes
+
+	app.Handle(http.MethodGet, "/", site.HomeLoader)
+
+	// ================================================================
+	// API Routes
+
+	app.Handle(http.MethodGet, "/api/account/init", api.AccountInit)
+
 }
 
-func (s service) HomeLoader(w http.ResponseWriter, r *http.Request) error {
+func (s siteService) HomeLoader(w http.ResponseWriter, r *http.Request) error {
 	ctx := r.Context()
 
 	return page.Home(page.HomeData{

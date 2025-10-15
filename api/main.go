@@ -45,6 +45,7 @@ func run(l *log.Logger) error {
 		PgHost     string `conf:"required"`
 		PgUser     string `conf:"required"`
 		PgPassword string `conf:"required,mask"`
+		PgDb       string `conf:"required"`
 
 		// Origin             string `conf:"required"`
 		// Host               string `conf:"required"`
@@ -59,7 +60,7 @@ func run(l *log.Logger) error {
 	// ==========================================
 	// DB
 
-	dbURL := fmt.Sprintf("postgres://%s:%s@%s:5432/worksy", cfg.PgUser, cfg.PgPassword, cfg.PgHost)
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", cfg.PgUser, cfg.PgPassword, cfg.PgHost, cfg.PgDb)
 
 	l.Println("connecting to postgres")
 
