@@ -3,6 +3,7 @@ package main
 import (
 	"chef/api/router"
 	"chef/core/conf"
+	"chef/core/enc"
 	"chef/core/web"
 	"context"
 	"embed"
@@ -46,16 +47,21 @@ func run(l *log.Logger) error {
 		PgUser     string `conf:"required"`
 		PgPassword string `conf:"required,mask"`
 		PgDb       string `conf:"required"`
+		HashSecret string `conf:"required,mask"`
 
 		// Origin             string `conf:"required"`
 		// Host               string `conf:"required"`
 		// EncSecret          string `conf:"required,mask"`
-		// HashSecret         string `conf:"required,mask"`
 	}{}
 
 	if err := conf.ParseAndPrint(&cfg); err != nil {
 		return err
 	}
+
+	// ==========================================
+	// Services
+
+	hasher := enc.NewHasher(cfg.HashSecret)
 
 	// ==========================================
 	// DB
@@ -80,7 +86,7 @@ func run(l *log.Logger) error {
 
 	app := web.NewApp(l, "")
 
-	router.Init(app, l, q, assets)
+	router.Init(app, l, q, assets, hasher)
 
 	addr := fmt.Sprintf("%s:%s", "0.0.0.0", cfg.Port)
 

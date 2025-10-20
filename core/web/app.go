@@ -1,12 +1,17 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-type Handler func(w http.ResponseWriter, r *http.Request) error
+type Handler func(
+	ctx context.Context,
+	w http.ResponseWriter,
+	r *http.Request,
+) error
 
 type App struct {
 	Mux      *http.ServeMux
@@ -57,11 +62,13 @@ func (a *App) Handle(method string, path string, handler Handler) {
 			}
 		}()
 
+		ctx := r.Context()
+		ctx = setContext(ctx)
 		rw := logResponseWriter{w, http.StatusOK}
 
 		a.l.Printf("started request %s %s", r.Method, r.URL.Path)
 
-		if err := handler(&rw, r); err != nil {
+		if err := handler(ctx, &rw, r); err != nil {
 
 			// if the error returned is not a web.Error,
 			// then we need to return a 500

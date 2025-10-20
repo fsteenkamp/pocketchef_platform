@@ -1,0 +1,15 @@
+meta {
+  name: account_list
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{HOST}}/api/admin/account/list
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

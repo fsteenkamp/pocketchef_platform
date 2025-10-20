@@ -7,6 +7,8 @@ package data
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const accountCreate = `-- name: AccountCreate :exec
@@ -38,7 +40,7 @@ func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) er
 }
 
 const accountGetByEmail = `-- name: AccountGetByEmail :one
-SELECT id, email, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, chef_status, password, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE email = $1
+SELECT id, email, email_verified, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, chef_status, password_hash, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE email = $1
 `
 
 func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account, error) {
@@ -47,6 +49,7 @@ func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account,
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
+		&i.EmailVerified,
 		&i.PhoneNumber,
 		&i.IsAdmin,
 		&i.IsRoot,
@@ -56,7 +59,7 @@ func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account,
 		&i.FirstName,
 		&i.LastName,
 		&i.ChefStatus,
-		&i.Password,
+		&i.PasswordHash,
 		&i.Provider,
 		&i.ProviderToken,
 		&i.ProviderRefreshToken,
@@ -71,12 +74,52 @@ func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account,
 }
 
 const accountGetByID = `-- name: AccountGetByID :one
-SELECT id, email, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, chef_status, password, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE id = $1
+SELECT
+    id,
+    email,
+    phone_number,
+    is_admin,
+    is_root,
+    created_at,
+    updated_at,
+    last_active,
+    first_name,
+    last_name,
+    chef_status,
+    provider,
+    provider_last_refresh,
+    picture,
+    disabled,
+    is_archived,
+    archived_at,
+    archived_by
+FROM account WHERE id = $1
 `
 
-func (q *Queries) AccountGetByID(ctx context.Context, id string) (Account, error) {
+type AccountGetByIDRow struct {
+	ID                  string           `json:"id"`
+	Email               string           `json:"email"`
+	PhoneNumber         pgtype.Text      `json:"phone_number"`
+	IsAdmin             bool             `json:"is_admin"`
+	IsRoot              bool             `json:"is_root"`
+	CreatedAt           pgtype.Timestamp `json:"created_at"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
+	LastActive          pgtype.Timestamp `json:"last_active"`
+	FirstName           pgtype.Text      `json:"first_name"`
+	LastName            pgtype.Text      `json:"last_name"`
+	ChefStatus          string           `json:"chef_status"`
+	Provider            pgtype.Text      `json:"provider"`
+	ProviderLastRefresh pgtype.Timestamp `json:"provider_last_refresh"`
+	Picture             pgtype.Text      `json:"picture"`
+	Disabled            bool             `json:"disabled"`
+	IsArchived          bool             `json:"is_archived"`
+	ArchivedAt          pgtype.Timestamp `json:"archived_at"`
+	ArchivedBy          pgtype.Text      `json:"archived_by"`
+}
+
+func (q *Queries) AccountGetByID(ctx context.Context, id string) (AccountGetByIDRow, error) {
 	row := q.db.QueryRow(ctx, accountGetByID, id)
-	var i Account
+	var i AccountGetByIDRow
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
@@ -89,10 +132,7 @@ func (q *Queries) AccountGetByID(ctx context.Context, id string) (Account, error
 		&i.FirstName,
 		&i.LastName,
 		&i.ChefStatus,
-		&i.Password,
 		&i.Provider,
-		&i.ProviderToken,
-		&i.ProviderRefreshToken,
 		&i.ProviderLastRefresh,
 		&i.Picture,
 		&i.Disabled,
@@ -101,4 +141,175 @@ func (q *Queries) AccountGetByID(ctx context.Context, id string) (Account, error
 		&i.ArchivedBy,
 	)
 	return i, err
+}
+
+const accountInit = `-- name: AccountInit :one
+SELECT
+    id,
+    email,
+    phone_number,
+    is_admin,
+    is_root,
+    created_at,
+    updated_at,
+    last_active,
+    first_name,
+    last_name,
+    chef_status,
+    provider,
+    provider_last_refresh,
+    picture,
+    disabled,
+    is_archived,
+    archived_at,
+    archived_by
+FROM account WHERE id = $1
+`
+
+type AccountInitRow struct {
+	ID                  string           `json:"id"`
+	Email               string           `json:"email"`
+	PhoneNumber         pgtype.Text      `json:"phone_number"`
+	IsAdmin             bool             `json:"is_admin"`
+	IsRoot              bool             `json:"is_root"`
+	CreatedAt           pgtype.Timestamp `json:"created_at"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
+	LastActive          pgtype.Timestamp `json:"last_active"`
+	FirstName           pgtype.Text      `json:"first_name"`
+	LastName            pgtype.Text      `json:"last_name"`
+	ChefStatus          string           `json:"chef_status"`
+	Provider            pgtype.Text      `json:"provider"`
+	ProviderLastRefresh pgtype.Timestamp `json:"provider_last_refresh"`
+	Picture             pgtype.Text      `json:"picture"`
+	Disabled            bool             `json:"disabled"`
+	IsArchived          bool             `json:"is_archived"`
+	ArchivedAt          pgtype.Timestamp `json:"archived_at"`
+	ArchivedBy          pgtype.Text      `json:"archived_by"`
+}
+
+func (q *Queries) AccountInit(ctx context.Context, id string) (AccountInitRow, error) {
+	row := q.db.QueryRow(ctx, accountInit, id)
+	var i AccountInitRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.IsAdmin,
+		&i.IsRoot,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastActive,
+		&i.FirstName,
+		&i.LastName,
+		&i.ChefStatus,
+		&i.Provider,
+		&i.ProviderLastRefresh,
+		&i.Picture,
+		&i.Disabled,
+		&i.IsArchived,
+		&i.ArchivedAt,
+		&i.ArchivedBy,
+	)
+	return i, err
+}
+
+const accountList = `-- name: AccountList :many
+SELECT
+    id,
+    email,
+    phone_number,
+    is_admin,
+    is_root,
+    created_at,
+    updated_at,
+    last_active,
+    first_name,
+    last_name,
+    chef_status,
+    provider,
+    provider_last_refresh,
+    picture,
+    disabled,
+    is_archived,
+    archived_at,
+    archived_by
+FROM
+    account
+`
+
+type AccountListRow struct {
+	ID                  string           `json:"id"`
+	Email               string           `json:"email"`
+	PhoneNumber         pgtype.Text      `json:"phone_number"`
+	IsAdmin             bool             `json:"is_admin"`
+	IsRoot              bool             `json:"is_root"`
+	CreatedAt           pgtype.Timestamp `json:"created_at"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
+	LastActive          pgtype.Timestamp `json:"last_active"`
+	FirstName           pgtype.Text      `json:"first_name"`
+	LastName            pgtype.Text      `json:"last_name"`
+	ChefStatus          string           `json:"chef_status"`
+	Provider            pgtype.Text      `json:"provider"`
+	ProviderLastRefresh pgtype.Timestamp `json:"provider_last_refresh"`
+	Picture             pgtype.Text      `json:"picture"`
+	Disabled            bool             `json:"disabled"`
+	IsArchived          bool             `json:"is_archived"`
+	ArchivedAt          pgtype.Timestamp `json:"archived_at"`
+	ArchivedBy          pgtype.Text      `json:"archived_by"`
+}
+
+func (q *Queries) AccountList(ctx context.Context) ([]AccountListRow, error) {
+	rows, err := q.db.Query(ctx, accountList)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AccountListRow
+	for rows.Next() {
+		var i AccountListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.PhoneNumber,
+			&i.IsAdmin,
+			&i.IsRoot,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.LastActive,
+			&i.FirstName,
+			&i.LastName,
+			&i.ChefStatus,
+			&i.Provider,
+			&i.ProviderLastRefresh,
+			&i.Picture,
+			&i.Disabled,
+			&i.IsArchived,
+			&i.ArchivedAt,
+			&i.ArchivedBy,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const accountSetLastActive = `-- name: AccountSetLastActive :exec
+UPDATE account
+SET
+    last_active = $2
+WHERE id = $1
+`
+
+type AccountSetLastActiveParams struct {
+	ID         string           `json:"id"`
+	LastActive pgtype.Timestamp `json:"last_active"`
+}
+
+func (q *Queries) AccountSetLastActive(ctx context.Context, arg AccountSetLastActiveParams) error {
+	_, err := q.db.Exec(ctx, accountSetLastActive, arg.ID, arg.LastActive)
+	return err
 }

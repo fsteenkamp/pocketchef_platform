@@ -1,7 +1,9 @@
 package router
 
 import (
-	"chef/api/page"
+	"chef/api/router/adminroutes"
+	"chef/api/router/authroutes"
+	"chef/core/enc"
 	"chef/core/web"
 	"chef/data"
 	"embed"
@@ -9,51 +11,46 @@ import (
 	"net/http"
 )
 
-type siteService struct {
-	l *log.Logger
-	q *data.Queries
-}
-
-type apiService struct {
-	l *log.Logger
-	q *data.Queries
-}
-
 func Init(
 	app *web.App,
 	l *log.Logger,
 	q *data.Queries,
 	assets embed.FS,
+	hasher *enc.Hasher,
 ) {
-	site := siteService{
-		l: l,
-		q: q,
+	adminR := adminroutes.Service{
+		L:      l,
+		Q:      q,
+		Hasher: hasher,
 	}
 
-	api := apiService{
-		l: l,
-		q: q,
+	// publicR := publicroutes.Service{
+	// 	L: l,
+	// 	Q: q,
+	// }
+
+	authR := authroutes.Service{
+		L:      l,
+		Q:      q,
+		Hasher: hasher,
 	}
 
 	fsHandler := http.FileServer(http.FS(assets))
 	app.Mux.Handle("GET /assets/{path}", fsHandler)
 
 	// ================================================================
-	// Website Routes
+	// Auth Routes
 
-	app.Handle(http.MethodGet, "/", site.HomeLoader)
+	app.Handle(http.MethodGet, "/api/auth/init", authR.Init)
 
 	// ================================================================
-	// API Routes
+	// Public Routes
 
-	app.Handle(http.MethodGet, "/api/account/init", api.AccountInit)
+	// app.Handle(http.MethodGet, "/api/account/init", api.AccountInit)
 
-}
+	// ================================================================
+	// Admin Routes
 
-func (s siteService) HomeLoader(w http.ResponseWriter, r *http.Request) error {
-	ctx := r.Context()
+	app.Handle(http.MethodGet, "/api/admin/account/list", adminR.AccountList)
 
-	return page.Home(page.HomeData{
-		Req: r,
-	}).Render(ctx, w)
 }

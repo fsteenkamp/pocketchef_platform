@@ -1,0 +1,15 @@
+meta {
+  name: init
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{HOST}}/api/auth/init
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

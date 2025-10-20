@@ -1,6 +1,7 @@
 CREATE TABLE account(
     id                          TEXT PRIMARY KEY,
     email                       TEXT UNIQUE NOT NULL,
+    email_verified              BOOL NOT NULL DEFAULT FALSE,
     phone_number                TEXT,
     is_admin                    BOOL NOT NULL DEFAULT false,
     is_root                     BOOL NOT NULL DEFAULT false,
@@ -10,7 +11,7 @@ CREATE TABLE account(
     first_name                  TEXT,
     last_name                   TEXT,
     chef_status                 TEXT NOT NULL CHECK(chef_status IN ('none', 'pending', 'declined', 'verified', 'disabled')) DEFAULT 'none',
-    password                    TEXT,
+    password_hash               TEXT,
     provider                    TEXT CHECK(provider IN ('google', 'microsoft', 'okta', 'apple', 'facebook')),
     provider_token              TEXT,
     provider_refresh_token      TEXT,

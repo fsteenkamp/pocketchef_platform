@@ -14,12 +14,14 @@ tasks:
     silent: true
     desc: Create an admin user locally.
     dotenv: ["./env/dev.env"]
-    cmds:
-      - mage bootstrap
+    cmd: mage bootstrap
   dev:
     silent: true
+    desc: Run the API with the dev environment.
     dotenv: ["./env/dev.env"]
-    cmds:
-      - templ generate
-      - tailwindcss -i ./in.css -o ./api/assets/styles.css -m
-      - go run ./api
+    cmd: go run ./api
+  gen/bearer:
+    silent: true
+    desc: Create a bearer token to use for local testing.
+    dotenv: ["./env/dev.env"]
+    cmd: mage genbearer
