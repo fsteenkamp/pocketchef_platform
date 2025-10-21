@@ -11,7 +11,9 @@ import (
 type Account struct {
 	ID                   string           `json:"id"`
 	Email                string           `json:"email"`
-	EmailVerified        bool             `json:"email_verified"`
+	Verified             bool             `json:"verified"`
+	VerifyCodeHash       pgtype.Text      `json:"verify_code_hash"`
+	ProfileConfigured    bool             `json:"profile_configured"`
 	PhoneNumber          pgtype.Text      `json:"phone_number"`
 	IsAdmin              bool             `json:"is_admin"`
 	IsRoot               bool             `json:"is_root"`

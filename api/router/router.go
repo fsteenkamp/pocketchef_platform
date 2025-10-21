@@ -35,6 +35,9 @@ func Init(
 		Hasher: hasher,
 	}
 
+	// ================================================================
+	// SPA Routes
+
 	fsHandler := http.FileServer(http.FS(assets))
 	app.Mux.Handle("GET /assets/{path}", fsHandler)
 
@@ -43,10 +46,26 @@ func Init(
 
 	app.Handle(http.MethodGet, "/api/auth/init", authR.Init)
 
+	app.Handle(http.MethodPost, "/api/auth/signup/credentials", authR.SignupWithCredentials)
+	app.Handle(http.MethodGet, "/api/auth/signup/verify", authR.SignupVerify)
+	app.Handle(http.MethodPost, "/api/auth/signin/credentials", authR.SigninWithCredentials)
+
+	// app.Handle(http.MethodPost, "/api/auth/signup/provider", authR.SignupWithProvider)
+	// app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.SignupWithProviderCallback)
+	// app.Handle(http.MethodPost, "/api/auth/signin/provider", authR.SigninWithProvider)
+	// app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.SigninWithProviderCallback)
+
+	// app.Handle(http.MethodPost, "/api/auth/signout", authR.Signout)
+
 	// ================================================================
 	// Public Routes
 
-	// app.Handle(http.MethodGet, "/api/account/init", api.AccountInit)
+	// app.Handle(http.MethodGet, "/api/public/recipe/list/all", publicR.RecipeListAll)
+
+	// ================================================================
+	// Chef Routes
+
+	// app.Handle(http.MethodGet, "/api/chef/recipe/create", chefR.RecipeCreate)
 
 	// ================================================================
 	// Admin Routes

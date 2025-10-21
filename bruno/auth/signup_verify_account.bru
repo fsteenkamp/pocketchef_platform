@@ -1,0 +1,20 @@
+meta {
+  name: signup_verify_account
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{HOST}}/api/auth/signup/verify?token=VFk1o3uD5EOARgBmHQCd3eaAzalBDiuc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  token: VFk1o3uD5EOARgBmHQCd3eaAzalBDiuc
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

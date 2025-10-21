@@ -16,17 +16,23 @@ INSERT INTO account (
     id,
     email,
     is_admin,
-    is_root
+    is_root,
+    verified,
+    password_hash,
+    verify_code_hash
 )
 VALUES
-    ($1, $2, $3, $4)
+    ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type AccountCreateParams struct {
-	ID      string `json:"id"`
-	Email   string `json:"email"`
-	IsAdmin bool   `json:"is_admin"`
-	IsRoot  bool   `json:"is_root"`
+	ID             string      `json:"id"`
+	Email          string      `json:"email"`
+	IsAdmin        bool        `json:"is_admin"`
+	IsRoot         bool        `json:"is_root"`
+	Verified       bool        `json:"verified"`
+	PasswordHash   pgtype.Text `json:"password_hash"`
+	VerifyCodeHash pgtype.Text `json:"verify_code_hash"`
 }
 
 func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) error {
@@ -35,12 +41,15 @@ func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) er
 		arg.Email,
 		arg.IsAdmin,
 		arg.IsRoot,
+		arg.Verified,
+		arg.PasswordHash,
+		arg.VerifyCodeHash,
 	)
 	return err
 }
 
 const accountGetByEmail = `-- name: AccountGetByEmail :one
-SELECT id, email, email_verified, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, chef_status, password_hash, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE email = $1
+SELECT id, email, verified, verify_code_hash, profile_configured, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, chef_status, password_hash, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE email = $1
 `
 
 func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account, error) {
@@ -49,7 +58,9 @@ func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account,
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
-		&i.EmailVerified,
+		&i.Verified,
+		&i.VerifyCodeHash,
+		&i.ProfileConfigured,
 		&i.PhoneNumber,
 		&i.IsAdmin,
 		&i.IsRoot,
@@ -311,5 +322,16 @@ type AccountSetLastActiveParams struct {
 
 func (q *Queries) AccountSetLastActive(ctx context.Context, arg AccountSetLastActiveParams) error {
 	_, err := q.db.Exec(ctx, accountSetLastActive, arg.ID, arg.LastActive)
+	return err
+}
+
+const accountSetVerified = `-- name: AccountSetVerified :exec
+UPDATE account
+SET verified = true
+WHERE verify_code_hash = $1
+`
+
+func (q *Queries) AccountSetVerified(ctx context.Context, verifyCodeHash pgtype.Text) error {
+	_, err := q.db.Exec(ctx, accountSetVerified, verifyCodeHash)
 	return err
 }

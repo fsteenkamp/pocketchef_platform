@@ -1,7 +1,9 @@
 CREATE TABLE account(
     id                          TEXT PRIMARY KEY,
     email                       TEXT UNIQUE NOT NULL,
-    email_verified              BOOL NOT NULL DEFAULT FALSE,
+    verified                    BOOL NOT NULL DEFAULT FALSE,
+    verify_code_hash            TEXT,
+    profile_configured          BOOL NOT NULL DEFAULT FALSE,
     phone_number                TEXT,
     is_admin                    BOOL NOT NULL DEFAULT false,
     is_root                     BOOL NOT NULL DEFAULT false,
