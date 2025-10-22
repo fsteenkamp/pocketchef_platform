@@ -2,6 +2,7 @@ package main
 
 import (
 	"chef/api/router"
+	"chef/core/auth"
 	"chef/core/conf"
 	"chef/core/enc"
 	"chef/core/web"
@@ -42,16 +43,15 @@ func run(l *log.Logger) error {
 	// CONFIG
 
 	cfg := struct {
-		Port       string `conf:"required"`
-		PgHost     string `conf:"required"`
-		PgUser     string `conf:"required"`
-		PgPassword string `conf:"required,mask"`
-		PgDb       string `conf:"required"`
-		HashSecret string `conf:"required,mask"`
-
-		// Origin             string `conf:"required"`
-		// Host               string `conf:"required"`
-		// EncSecret          string `conf:"required,mask"`
+		Port                    string `conf:"required"`
+		PgHost                  string `conf:"required"`
+		PgUser                  string `conf:"required"`
+		PgPassword              string `conf:"required,mask"`
+		PgDb                    string `conf:"required"`
+		HashSecret              string `conf:"required,mask"`
+		GoogleOauthClientID     string `conf:"required"`
+		GoogleOauthClientSecret string `conf:"required,mask"`
+		RedirectHost            string `conf:"required"`
 	}{}
 
 	if err := conf.ParseAndPrint(&cfg); err != nil {
@@ -62,6 +62,11 @@ func run(l *log.Logger) error {
 	// Services
 
 	hasher := enc.NewHasher(cfg.HashSecret)
+	authProviderGoogle := auth.InitGoogle(
+		cfg.GoogleOauthClientID,
+		cfg.GoogleOauthClientSecret,
+		fmt.Sprintf("%s/api/auth/callback/google", cfg.RedirectHost),
+	)
 
 	// ==========================================
 	// DB
@@ -86,7 +91,14 @@ func run(l *log.Logger) error {
 
 	app := web.NewApp(l, "")
 
-	router.Init(app, l, q, assets, hasher)
+	router.Init(
+		app,
+		l,
+		q,
+		assets,
+		hasher,
+		authProviderGoogle,
+	)
 
 	addr := fmt.Sprintf("%s:%s", "0.0.0.0", cfg.Port)
 

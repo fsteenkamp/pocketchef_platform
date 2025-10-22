@@ -49,7 +49,7 @@ func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) er
 }
 
 const accountGetByEmail = `-- name: AccountGetByEmail :one
-SELECT id, email, verified, verify_code_hash, profile_configured, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, chef_status, password_hash, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE email = $1
+SELECT id, email, verified, verify_code_hash, profile_configured, phone_number, is_admin, is_root, created_at, updated_at, last_active, first_name, last_name, password_hash, provider, provider_token, provider_refresh_token, provider_last_refresh, picture, disabled, is_archived, archived_at, archived_by FROM account WHERE email = $1
 `
 
 func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account, error) {
@@ -69,7 +69,6 @@ func (q *Queries) AccountGetByEmail(ctx context.Context, email string) (Account,
 		&i.LastActive,
 		&i.FirstName,
 		&i.LastName,
-		&i.ChefStatus,
 		&i.PasswordHash,
 		&i.Provider,
 		&i.ProviderToken,
@@ -96,7 +95,6 @@ SELECT
     last_active,
     first_name,
     last_name,
-    chef_status,
     provider,
     provider_last_refresh,
     picture,
@@ -118,7 +116,6 @@ type AccountGetByIDRow struct {
 	LastActive          pgtype.Timestamp `json:"last_active"`
 	FirstName           pgtype.Text      `json:"first_name"`
 	LastName            pgtype.Text      `json:"last_name"`
-	ChefStatus          string           `json:"chef_status"`
 	Provider            pgtype.Text      `json:"provider"`
 	ProviderLastRefresh pgtype.Timestamp `json:"provider_last_refresh"`
 	Picture             pgtype.Text      `json:"picture"`
@@ -142,7 +139,6 @@ func (q *Queries) AccountGetByID(ctx context.Context, id string) (AccountGetByID
 		&i.LastActive,
 		&i.FirstName,
 		&i.LastName,
-		&i.ChefStatus,
 		&i.Provider,
 		&i.ProviderLastRefresh,
 		&i.Picture,
@@ -166,7 +162,6 @@ SELECT
     last_active,
     first_name,
     last_name,
-    chef_status,
     provider,
     provider_last_refresh,
     picture,
@@ -188,7 +183,6 @@ type AccountInitRow struct {
 	LastActive          pgtype.Timestamp `json:"last_active"`
 	FirstName           pgtype.Text      `json:"first_name"`
 	LastName            pgtype.Text      `json:"last_name"`
-	ChefStatus          string           `json:"chef_status"`
 	Provider            pgtype.Text      `json:"provider"`
 	ProviderLastRefresh pgtype.Timestamp `json:"provider_last_refresh"`
 	Picture             pgtype.Text      `json:"picture"`
@@ -212,7 +206,6 @@ func (q *Queries) AccountInit(ctx context.Context, id string) (AccountInitRow, e
 		&i.LastActive,
 		&i.FirstName,
 		&i.LastName,
-		&i.ChefStatus,
 		&i.Provider,
 		&i.ProviderLastRefresh,
 		&i.Picture,
@@ -236,7 +229,6 @@ SELECT
     last_active,
     first_name,
     last_name,
-    chef_status,
     provider,
     provider_last_refresh,
     picture,
@@ -259,7 +251,6 @@ type AccountListRow struct {
 	LastActive          pgtype.Timestamp `json:"last_active"`
 	FirstName           pgtype.Text      `json:"first_name"`
 	LastName            pgtype.Text      `json:"last_name"`
-	ChefStatus          string           `json:"chef_status"`
 	Provider            pgtype.Text      `json:"provider"`
 	ProviderLastRefresh pgtype.Timestamp `json:"provider_last_refresh"`
 	Picture             pgtype.Text      `json:"picture"`
@@ -289,7 +280,6 @@ func (q *Queries) AccountList(ctx context.Context) ([]AccountListRow, error) {
 			&i.LastActive,
 			&i.FirstName,
 			&i.LastName,
-			&i.ChefStatus,
 			&i.Provider,
 			&i.ProviderLastRefresh,
 			&i.Picture,

@@ -13,9 +13,9 @@ const COOKIE = "AUTH_TOKEN"
 
 const SessionDuration = time.Hour * 730
 
-func InitGoogle(clientID string, clientSecret string, redirectHost string) *oauth2.Config {
+func InitGoogle(clientID string, clientSecret string, redirectURL string) *oauth2.Config {
 	return &oauth2.Config{
-		RedirectURL:  fmt.Sprintf("%s/api/auth/callback/google", redirectHost),
+		RedirectURL:  redirectURL,
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Scopes: []string{

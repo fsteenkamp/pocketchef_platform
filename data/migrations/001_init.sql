@@ -1,61 +1,72 @@
 CREATE TABLE account(
-    id                          TEXT PRIMARY KEY,
-    email                       TEXT UNIQUE NOT NULL,
-    verified                    BOOL NOT NULL DEFAULT FALSE,
-    verify_code_hash            TEXT,
-    profile_configured          BOOL NOT NULL DEFAULT FALSE,
-    phone_number                TEXT,
-    is_admin                    BOOL NOT NULL DEFAULT false,
-    is_root                     BOOL NOT NULL DEFAULT false,
-    created_at                  TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    updated_at                  TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    last_active                 TIMESTAMP,
-    first_name                  TEXT,
-    last_name                   TEXT,
-    chef_status                 TEXT NOT NULL CHECK(chef_status IN ('none', 'pending', 'declined', 'verified', 'disabled')) DEFAULT 'none',
-    password_hash               TEXT,
-    provider                    TEXT CHECK(provider IN ('google', 'microsoft', 'okta', 'apple', 'facebook')),
-    provider_token              TEXT,
-    provider_refresh_token      TEXT,
-    provider_last_refresh       TIMESTAMP,
-    picture                     TEXT,
-    disabled                    BOOL NOT NULL DEFAULT false,
-    is_archived                 BOOL NOT NULL DEFAULT false,
-    archived_at                 TIMESTAMP,
-    archived_by                 TEXT references account(id)
+    id                          text primary key,
+    email                       text unique not null,
+    verified                    bool not null default false,
+    verify_code_hash            text,
+    profile_configured          bool not null default false,
+    phone_number                text,
+    is_admin                    bool not null default false,
+    is_root                     bool not null default false,
+    created_at                  timestamp not null default (now() at time zone 'utc'),
+    updated_at                  timestamp not null default (now() at time zone 'utc'),
+    last_active                 timestamp,
+    first_name                  text,
+    last_name                   text,
+    password_hash               text,
+    provider                    text check(provider in ('google', 'microsoft', 'okta', 'apple', 'facebook')),
+    provider_token              text,
+    provider_refresh_token      text,
+    provider_last_refresh       timestamp,
+    picture                     text,
+    disabled                    bool not null default false,
+    is_archived                 bool not null default false,
+    archived_at                 timestamp,
+    archived_by                 text references account(id)
 );
 
 CREATE TABLE session (
-    id                  TEXT PRIMARY KEY,
-    token_hash          TEXT NOT NULL,
-    account_id          TEXT NOT NULL references account(id),
-    created_at          TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    updated_at          TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    expires_at          TIMESTAMP NOT NULL,
-    invalidated         BOOL NOT NULL DEFAULT false,
-    invalidated_at      TIMESTAMP,
-    invalidated_by      TEXT references account(id)
+    id                  text primary key,
+    token_hash          text not null,
+    account_id          text not null references account(id),
+    created_at          timestamp not null default (now() at time zone 'utc'),
+    updated_at          timestamp not null default (now() at time zone 'utc'),
+    expires_at          timestamp not null,
+    invalidated         bool not null default false,
+    invalidated_at      timestamp,
+    invalidated_by      text references account(id)
+);
+
+CREATE TABLE chef (
+    id                          text primary key,
+    display_name                text,
+    description                 text not null,
+    picture                     text not null,
+    chef_status                 text not null check(chef_status in ('pending', 'declined', 'verified', 'disabled')) default 'none',
+    created_at                  timestamp not null default (now() at time zone 'utc'),
+    updated_at                  timestamp not null default (now() at time zone 'utc'),
+    archived_at                 timestamp,
+    archived_by                 text references account(id)
 );
 
 CREATE TABLE recipe (
-    id              TEXT PRIMARY KEY,
-    chef_id         TEXT NOT NULL references account(id),
-    cover_img_id    TEXT NOT NULL,
-    content         JSONB NOT NULL default '{}',
-    tags            TEXT[],
-    is_published    BOOL NOT NULL DEFAULT FALSE,
-    is_hidden       BOOL NOT NULL DEFAULT FALSE,
-    created_at      TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    updated_at      TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
+    id              text primary key,
+    chef_id         text not null references chef(id),
+    cover_img_id    text not null,
+    content         jsonb not null default '{}',
+    tags            text[],
+    is_published    bool not null default false,
+    is_hidden       bool not null default false,
+    created_at      timestamp not null default (now() at time zone 'utc'),
+    updated_at      timestamp not null default (now() at time zone 'utc')
 );
 
 CREATE TABLE pocket (
-    id              TEXT PRIMARY KEY,
-    name            TEXT NOT NULL,
-    account_id      TEXT NOT NULL references account(id),
-    is_archived     BOOL NOT NULL DEFAULT FALSE,
-    created_at      TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC'),
-    updated_at      TIMESTAMP NOT NULL DEFAULT (NOW() AT TIME ZONE 'UTC')
+    id              text primary key,
+    name            text not null,
+    account_id      text not null references account(id),
+    is_archived     bool not null default false,
+    created_at      timestamp not null default (now() at time zone 'utc'),
+    updated_at      timestamp not null default (now() at time zone 'utc')
 );
 
 CREATE TABLE pocket_recipe ();
@@ -63,3 +74,7 @@ CREATE TABLE pocket_recipe ();
 CREATE TABLE collection ();
 
 CREATE TABLE featured_chef ();
+
+CREATE TABLE subscription ();
+CREATE TABLE subscription_plan ();
+CREATE TABLE invoice ();

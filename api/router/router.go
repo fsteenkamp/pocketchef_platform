@@ -9,6 +9,8 @@ import (
 	"embed"
 	"log"
 	"net/http"
+
+	"golang.org/x/oauth2"
 )
 
 func Init(
@@ -17,6 +19,7 @@ func Init(
 	q *data.Queries,
 	assets embed.FS,
 	hasher *enc.Hasher,
+	googleProvider *oauth2.Config,
 ) {
 	adminR := adminroutes.Service{
 		L:      l,
@@ -30,9 +33,10 @@ func Init(
 	// }
 
 	authR := authroutes.Service{
-		L:      l,
-		Q:      q,
-		Hasher: hasher,
+		L:              l,
+		Q:              q,
+		Hasher:         hasher,
+		GoogleProvider: googleProvider,
 	}
 
 	// ================================================================
@@ -50,12 +54,10 @@ func Init(
 	app.Handle(http.MethodGet, "/api/auth/signup/verify", authR.SignupVerify)
 	app.Handle(http.MethodPost, "/api/auth/signin/credentials", authR.SigninWithCredentials)
 
-	// app.Handle(http.MethodPost, "/api/auth/signup/provider", authR.SignupWithProvider)
-	// app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.SignupWithProviderCallback)
-	// app.Handle(http.MethodPost, "/api/auth/signin/provider", authR.SigninWithProvider)
-	// app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.SigninWithProviderCallback)
+	// app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.ProviderCallback)
+	// app.Handle(http.MethodPost, "/api/auth/provider", authR.Provider)
 
-	// app.Handle(http.MethodPost, "/api/auth/signout", authR.Signout)
+	app.Handle(http.MethodPost, "/api/auth/signout", authR.Signout)
 
 	// ================================================================
 	// Public Routes

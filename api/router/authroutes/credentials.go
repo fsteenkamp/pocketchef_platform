@@ -113,7 +113,7 @@ func (s *Service) SigninWithCredentials(
 	acc, err := s.Q.AccountGetByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			http.Redirect(w, r, r.URL.Path+"?err=acc-not-found", http.StatusNotFound)
+			http.Redirect(w, r, "/signin?err=acc-not-found", http.StatusSeeOther)
 			return nil
 		}
 
@@ -126,12 +126,12 @@ func (s *Service) SigninWithCredentials(
 	}
 
 	if !acc.PasswordHash.Valid {
-		http.Redirect(w, r, r.URL.Path+"?err=require-provider-"+acc.Provider.String, http.StatusNotFound)
+		http.Redirect(w, r, "/signin?err=require-provider-"+acc.Provider.String, http.StatusSeeOther)
 		return nil
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(acc.PasswordHash.String), []byte(password)); err != nil {
-		http.Redirect(w, r, r.URL.Path+"?err=bad-password", http.StatusNotFound)
+		http.Redirect(w, r, "/signin?err=bad-password", http.StatusSeeOther)
 		return nil
 	}
 

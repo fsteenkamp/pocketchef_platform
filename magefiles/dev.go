@@ -13,6 +13,7 @@ import (
 	"chef/data"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Bootstrap creates a user in the specified environment
@@ -27,6 +28,9 @@ func Bootstrap() error {
 	var email string
 	cli.InteractiveStr("Email: ", &email)
 
+	var password string
+	cli.InteractiveStr("Password: ", &password)
+
 	var isAdmin bool
 	cli.InteractiveYesNo("Is Admin (y/n): ", &isAdmin)
 
@@ -35,11 +39,20 @@ func Bootstrap() error {
 
 	uid := randx.UID()
 
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+
 	if err := d.q.AccountCreate(ctx, data.AccountCreateParams{
 		ID:      uid,
 		Email:   email,
 		IsAdmin: isAdmin,
 		IsRoot:  isRoot,
+		PasswordHash: pgtype.Text{
+			String: string(passwordHash),
+			Valid:  true,
+		},
 	}); err != nil {
 		return err
 	}

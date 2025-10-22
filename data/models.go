@@ -22,7 +22,6 @@ type Account struct {
 	LastActive           pgtype.Timestamp `json:"last_active"`
 	FirstName            pgtype.Text      `json:"first_name"`
 	LastName             pgtype.Text      `json:"last_name"`
-	ChefStatus           string           `json:"chef_status"`
 	PasswordHash         pgtype.Text      `json:"password_hash"`
 	Provider             pgtype.Text      `json:"provider"`
 	ProviderToken        pgtype.Text      `json:"provider_token"`
@@ -35,10 +34,25 @@ type Account struct {
 	ArchivedBy           pgtype.Text      `json:"archived_by"`
 }
 
+type Chef struct {
+	ID          string           `json:"id"`
+	DisplayName pgtype.Text      `json:"display_name"`
+	Description string           `json:"description"`
+	Picture     string           `json:"picture"`
+	ChefStatus  string           `json:"chef_status"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	ArchivedAt  pgtype.Timestamp `json:"archived_at"`
+	ArchivedBy  pgtype.Text      `json:"archived_by"`
+}
+
 type Collection struct {
 }
 
 type FeaturedChef struct {
+}
+
+type Invoice struct {
 }
 
 type Pocket struct {
@@ -75,4 +89,10 @@ type Session struct {
 	Invalidated   bool             `json:"invalidated"`
 	InvalidatedAt pgtype.Timestamp `json:"invalidated_at"`
 	InvalidatedBy pgtype.Text      `json:"invalidated_by"`
+}
+
+type Subscription struct {
+}
+
+type SubscriptionPlan struct {
 }
