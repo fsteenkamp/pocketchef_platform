@@ -153,7 +153,7 @@ func (s *Service) SigninWithCredentials(
 	}
 
 	web.SetCookie(w, auth.COOKIE, randToken, now.Add(auth.SessionDuration))
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 	return nil
 }
@@ -164,7 +164,6 @@ func (s *Service) SignupVerify(
 	r *http.Request,
 ) error {
 	token := r.FormValue("token")
-	redirect := r.FormValue("redirect") // [true | false]
 
 	tokenHash := s.Hasher.Hash(token)
 
@@ -175,10 +174,10 @@ func (s *Service) SignupVerify(
 		return err
 	}
 
-	if redirect == "true" {
+	if r.Header.Get("content-type") == "application/json" {
+		return web.JsonOK(w)
+	} else {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return nil
 	}
-
-	return web.JsonOK(w)
 }

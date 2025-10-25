@@ -49,14 +49,11 @@ func Init(
 	// Auth Routes
 
 	app.Handle(http.MethodGet, "/api/auth/init", authR.Init)
-
 	app.Handle(http.MethodPost, "/api/auth/signup/credentials", authR.SignupWithCredentials)
 	app.Handle(http.MethodGet, "/api/auth/signup/verify", authR.SignupVerify)
 	app.Handle(http.MethodPost, "/api/auth/signin/credentials", authR.SigninWithCredentials)
-
-	// app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.ProviderCallback)
-	// app.Handle(http.MethodPost, "/api/auth/provider", authR.Provider)
-
+	app.Handle(http.MethodPost, "/api/auth/provider", authR.Provider)
+	app.Handle(http.MethodGet, "/api/auth/callback/{provider}", authR.ProviderCallback)
 	app.Handle(http.MethodPost, "/api/auth/signout", authR.Signout)
 
 	// ================================================================

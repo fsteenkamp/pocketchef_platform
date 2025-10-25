@@ -30,10 +30,15 @@ INSERT INTO account (
     is_root,
     verified,
     password_hash,
-    verify_code_hash
+    verify_code_hash,
+    provider,
+    provider_token,
+    provider_refresh_token,
+    provider_last_refresh,
+    picture
 )
 VALUES
-    ($1, $2, $3, $4, $5, $6, $7);
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12);
 
 -- name: AccountSetLastActive :exec
 UPDATE account
@@ -88,3 +93,13 @@ FROM account WHERE id = $1;
 UPDATE account
 SET verified = true
 WHERE verify_code_hash = $1;
+
+-- name: AccountRefreshProviderDetails :exec
+UPDATE account
+SET
+    first_name = $2,
+    last_name = $3,
+    phone_number = $4,
+    picture = $5
+WHERE
+    id = $1;

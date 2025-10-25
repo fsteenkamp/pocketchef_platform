@@ -19,20 +19,30 @@ INSERT INTO account (
     is_root,
     verified,
     password_hash,
-    verify_code_hash
+    verify_code_hash,
+    provider,
+    provider_token,
+    provider_refresh_token,
+    provider_last_refresh,
+    picture
 )
 VALUES
-    ($1, $2, $3, $4, $5, $6, $7)
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 `
 
 type AccountCreateParams struct {
-	ID             string      `json:"id"`
-	Email          string      `json:"email"`
-	IsAdmin        bool        `json:"is_admin"`
-	IsRoot         bool        `json:"is_root"`
-	Verified       bool        `json:"verified"`
-	PasswordHash   pgtype.Text `json:"password_hash"`
-	VerifyCodeHash pgtype.Text `json:"verify_code_hash"`
+	ID                   string           `json:"id"`
+	Email                string           `json:"email"`
+	IsAdmin              bool             `json:"is_admin"`
+	IsRoot               bool             `json:"is_root"`
+	Verified             bool             `json:"verified"`
+	PasswordHash         pgtype.Text      `json:"password_hash"`
+	VerifyCodeHash       pgtype.Text      `json:"verify_code_hash"`
+	Provider             pgtype.Text      `json:"provider"`
+	ProviderToken        pgtype.Text      `json:"provider_token"`
+	ProviderRefreshToken pgtype.Text      `json:"provider_refresh_token"`
+	ProviderLastRefresh  pgtype.Timestamp `json:"provider_last_refresh"`
+	Picture              pgtype.Text      `json:"picture"`
 }
 
 func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) error {
@@ -44,6 +54,11 @@ func (q *Queries) AccountCreate(ctx context.Context, arg AccountCreateParams) er
 		arg.Verified,
 		arg.PasswordHash,
 		arg.VerifyCodeHash,
+		arg.Provider,
+		arg.ProviderToken,
+		arg.ProviderRefreshToken,
+		arg.ProviderLastRefresh,
+		arg.Picture,
 	)
 	return err
 }
@@ -296,6 +311,36 @@ func (q *Queries) AccountList(ctx context.Context) ([]AccountListRow, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const accountRefreshProviderDetails = `-- name: AccountRefreshProviderDetails :exec
+UPDATE account
+SET
+    first_name = $2,
+    last_name = $3,
+    phone_number = $4,
+    picture = $5
+WHERE
+    id = $1
+`
+
+type AccountRefreshProviderDetailsParams struct {
+	ID          string      `json:"id"`
+	FirstName   pgtype.Text `json:"first_name"`
+	LastName    pgtype.Text `json:"last_name"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+	Picture     pgtype.Text `json:"picture"`
+}
+
+func (q *Queries) AccountRefreshProviderDetails(ctx context.Context, arg AccountRefreshProviderDetailsParams) error {
+	_, err := q.db.Exec(ctx, accountRefreshProviderDetails,
+		arg.ID,
+		arg.FirstName,
+		arg.LastName,
+		arg.PhoneNumber,
+		arg.Picture,
+	)
+	return err
 }
 
 const accountSetLastActive = `-- name: AccountSetLastActive :exec
