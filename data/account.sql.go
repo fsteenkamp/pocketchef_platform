@@ -167,24 +167,48 @@ func (q *Queries) AccountGetByID(ctx context.Context, id string) (AccountGetByID
 
 const accountInit = `-- name: AccountInit :one
 SELECT
-    id,
-    email,
-    phone_number,
-    is_admin,
-    is_root,
-    created_at,
-    updated_at,
-    last_active,
-    first_name,
-    last_name,
-    provider,
-    provider_last_refresh,
-    picture,
-    disabled,
-    is_archived,
-    archived_at,
-    archived_by
-FROM account WHERE id = $1
+    account.id                              id,
+    account.email                           email,
+    account.phone_number                    phone_number,
+    account.is_admin                        is_admin,
+    account.is_root                         is_root,
+    account.created_at                      created_at,
+    account.updated_at                      updated_at,
+    account.last_active                     last_active,
+    account.first_name                      first_name,
+    account.last_name                       last_name,
+    account.provider                        provider,
+    account.provider_last_refresh           provider_last_refresh,
+    account.picture                         picture,
+    account.disabled                        disabled,
+    account.is_archived                     is_archived,
+    account.archived_at                     archived_at,
+    account.archived_by                     archived_by,
+    json_agg(json_build_object(
+        'id',                               chef.id,
+        'account_id',                       chef.account_id,
+        'display_name',                     chef.display_name,
+        'description',                      chef.description,
+        'picture',                          chef.picture,
+        'phone_number',                     chef.phone_number,
+        'chef_status',                      chef.chef_status,
+        'created_at',                       chef.created_at,
+        'updated_at',                       chef.updated_at,
+        'archived_at',                      chef.archived_at,
+        'archived_by',                      chef.archived_by,
+        'social_link_instagram',            chef.social_link_instagram,
+        'social_link_facebook',             chef.social_link_facebook,
+        'social_link_website',              chef.social_link_website,
+        'social_link_x',                    chef.social_link_x,
+        'social_link_tiktok',               chef.social_link_tiktok,
+        'social_link_youtube',              chef.social_link_youtube
+    )) FILTER (WHERE chef.id IS NOT NULL)   chef_profile
+FROM account
+LEFT JOIN chef
+ON
+    chef.account_id = account.id
+WHERE account.id = $1
+GROUP BY account.id
 `
 
 type AccountInitRow struct {
@@ -205,6 +229,7 @@ type AccountInitRow struct {
 	IsArchived          bool             `json:"is_archived"`
 	ArchivedAt          pgtype.Timestamp `json:"archived_at"`
 	ArchivedBy          pgtype.Text      `json:"archived_by"`
+	ChefProfile         []byte           `json:"chef_profile"`
 }
 
 func (q *Queries) AccountInit(ctx context.Context, id string) (AccountInitRow, error) {
@@ -228,6 +253,7 @@ func (q *Queries) AccountInit(ctx context.Context, id string) (AccountInitRow, e
 		&i.IsArchived,
 		&i.ArchivedAt,
 		&i.ArchivedBy,
+		&i.ChefProfile,
 	)
 	return i, err
 }
@@ -343,6 +369,24 @@ func (q *Queries) AccountRefreshProviderDetails(ctx context.Context, arg Account
 	return err
 }
 
+const accountSetAdmin = `-- name: AccountSetAdmin :exec
+UPDATE account
+SET
+    is_admin = $2
+WHERE
+    id = $1
+`
+
+type AccountSetAdminParams struct {
+	ID      string `json:"id"`
+	IsAdmin bool   `json:"is_admin"`
+}
+
+func (q *Queries) AccountSetAdmin(ctx context.Context, arg AccountSetAdminParams) error {
+	_, err := q.db.Exec(ctx, accountSetAdmin, arg.ID, arg.IsAdmin)
+	return err
+}
+
 const accountSetLastActive = `-- name: AccountSetLastActive :exec
 UPDATE account
 SET
@@ -357,6 +401,25 @@ type AccountSetLastActiveParams struct {
 
 func (q *Queries) AccountSetLastActive(ctx context.Context, arg AccountSetLastActiveParams) error {
 	_, err := q.db.Exec(ctx, accountSetLastActive, arg.ID, arg.LastActive)
+	return err
+}
+
+const accountSetRoot = `-- name: AccountSetRoot :exec
+UPDATE account
+SET
+    is_root  =  $2,
+    is_admin =  $2
+WHERE
+    id = $1
+`
+
+type AccountSetRootParams struct {
+	ID     string `json:"id"`
+	IsRoot bool   `json:"is_root"`
+}
+
+func (q *Queries) AccountSetRoot(ctx context.Context, arg AccountSetRootParams) error {
+	_, err := q.db.Exec(ctx, accountSetRoot, arg.ID, arg.IsRoot)
 	return err
 }
 

@@ -1,5 +1,7 @@
-- Implement Oauth2 with Google
-- Add auth page with auth redirect (Fetch wrapper)
-
-- Add admin routing
-- Work on chef features
+- Create request chef button
+  - opens dialog to create chef profile
+  - only show this if the account does not have a chef profile
+- admin functionality
+  - approve chef profile
+  - reject with note
+- once an account has a chef profile, they should be able to upload recipes

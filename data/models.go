@@ -35,15 +35,35 @@ type Account struct {
 }
 
 type Chef struct {
-	ID          string           `json:"id"`
-	DisplayName pgtype.Text      `json:"display_name"`
-	Description string           `json:"description"`
-	Picture     string           `json:"picture"`
-	ChefStatus  string           `json:"chef_status"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	ArchivedAt  pgtype.Timestamp `json:"archived_at"`
-	ArchivedBy  pgtype.Text      `json:"archived_by"`
+	ID                  string           `json:"id"`
+	AccountID           string           `json:"account_id"`
+	DisplayName         pgtype.Text      `json:"display_name"`
+	Description         string           `json:"description"`
+	Picture             string           `json:"picture"`
+	PhoneNumber         string           `json:"phone_number"`
+	ChefStatus          string           `json:"chef_status"`
+	CreatedAt           pgtype.Timestamp `json:"created_at"`
+	UpdatedAt           pgtype.Timestamp `json:"updated_at"`
+	ArchivedAt          pgtype.Timestamp `json:"archived_at"`
+	ArchivedBy          pgtype.Text      `json:"archived_by"`
+	SocialLinkInstagram pgtype.Text      `json:"social_link_instagram"`
+	SocialLinkFacebook  pgtype.Text      `json:"social_link_facebook"`
+	SocialLinkWebsite   pgtype.Text      `json:"social_link_website"`
+	SocialLinkX         pgtype.Text      `json:"social_link_x"`
+	SocialLinkTiktok    pgtype.Text      `json:"social_link_tiktok"`
+	SocialLinkYoutube   pgtype.Text      `json:"social_link_youtube"`
+}
+
+type ChefProfileReview struct {
+	ID                string           `json:"id"`
+	ChefID            string           `json:"chef_id"`
+	CreatedBy         string           `json:"created_by"`
+	CreatedAt         pgtype.Timestamp `json:"created_at"`
+	ReviewedAt        pgtype.Timestamp `json:"reviewed_at"`
+	Reviewer          pgtype.Text      `json:"reviewer"`
+	ReviewPrivateNote pgtype.Text      `json:"review_private_note"`
+	ReviewPublicNote  pgtype.Text      `json:"review_public_note"`
+	ReviewOutcome     string           `json:"review_outcome"`
 }
 
 type Collection struct {

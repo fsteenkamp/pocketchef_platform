@@ -13,7 +13,6 @@ import (
 	"chef/data"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // Bootstrap creates a user in the specified environment
@@ -28,33 +27,31 @@ func Bootstrap() error {
 	var email string
 	cli.InteractiveStr("Email: ", &email)
 
-	var password string
-	cli.InteractiveStr("Password: ", &password)
-
 	var isAdmin bool
 	cli.InteractiveYesNo("Is Admin (y/n): ", &isAdmin)
 
 	var isRoot bool
 	cli.InteractiveYesNo("Is Root (y/n): ", &isRoot)
 
-	uid := randx.UID()
-
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	account, err := d.q.AccountGetByEmail(ctx, email)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	if err := d.q.AccountCreate(ctx, data.AccountCreateParams{
-		ID:      uid,
-		Email:   email,
-		IsAdmin: isAdmin,
-		IsRoot:  isRoot,
-		PasswordHash: pgtype.Text{
-			String: string(passwordHash),
-			Valid:  true,
-		},
-	}); err != nil {
-		return err
+	if isRoot {
+		if err := d.q.AccountSetRoot(ctx, data.AccountSetRootParams{
+			ID:     account.ID,
+			IsRoot: isRoot,
+		}); err != nil {
+			return err
+		}
+	} else if isAdmin {
+		if err := d.q.AccountSetAdmin(ctx, data.AccountSetAdminParams{
+			ID:      account.ID,
+			IsAdmin: isAdmin,
+		}); err != nil {
+			return err
+		}
 	}
 
 	fmt.Println("done.")

@@ -38,14 +38,34 @@ CREATE TABLE session (
 
 CREATE TABLE chef (
     id                          text primary key,
+    account_id                  text not null references account(id),
     display_name                text,
     description                 text not null,
     picture                     text not null,
-    chef_status                 text not null check(chef_status in ('pending', 'declined', 'verified', 'disabled')) default 'none',
+    phone_number                text not null,
+    chef_status                 text not null check(chef_status in ('pending', 'rejected', 'verified', 'disabled')) default 'none',
     created_at                  timestamp not null default (now() at time zone 'utc'),
     updated_at                  timestamp not null default (now() at time zone 'utc'),
     archived_at                 timestamp,
-    archived_by                 text references account(id)
+    archived_by                 text references account(id),
+    social_link_instagram       text,
+    social_link_facebook        text,
+    social_link_website         text,
+    social_link_x               text,
+    social_link_tiktok          text,
+    social_link_youtube         text
+);
+
+CREATE TABLE chef_profile_review (
+    id                      text primary key,
+    chef_id                 text not null references chef(id),
+    created_by              text not null references account(id),
+    created_at              timestamp not null default (now() at time zone 'utc'),
+    reviewed_at             timestamp not null default (now() at time zone 'utc'),
+    reviewer                text references account(id),
+    review_private_note     text,
+    review_public_note      text,
+    review_outcome          text not null check(review_outcome in ('rejected', 'verified', 'disabled')) default 'none'
 );
 
 CREATE TABLE recipe (

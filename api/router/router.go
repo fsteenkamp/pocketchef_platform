@@ -70,5 +70,6 @@ func Init(
 	// Admin Routes
 
 	app.Handle(http.MethodGet, "/api/admin/account/list", adminR.AccountList)
+	app.Handle(http.MethodPost, "/api/admin/account/toggle/admin", adminR.AccountToggleAdmin)
 
 }
