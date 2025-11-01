@@ -167,7 +167,7 @@ func (s Service) callbackGoogle(ctx context.Context, now time.Time, w http.Respo
 	}
 
 	web.SetCookie(w, auth.COOKIE, randToken, now.Add(auth.SessionDuration))
-	http.Redirect(w, r, "", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 	return nil
 }

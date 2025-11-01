@@ -3,6 +3,7 @@ package router
 import (
 	"chef/api/router/adminroutes"
 	"chef/api/router/authroutes"
+	"chef/api/router/chefroutes"
 	"chef/core/enc"
 	"chef/core/web"
 	"chef/data"
@@ -31,6 +32,12 @@ func Init(
 	// 	L: l,
 	// 	Q: q,
 	// }
+
+	chefRouter := chefroutes.Service{
+		L:      l,
+		Q:      q,
+		Hasher: hasher,
+	}
 
 	authR := authroutes.Service{
 		L:              l,
@@ -64,7 +71,7 @@ func Init(
 	// ================================================================
 	// Chef Routes
 
-	// app.Handle(http.MethodGet, "/api/chef/recipe/create", chefR.RecipeCreate)
+	app.Handle(http.MethodPost, "/api/chef/create", chefRouter.ChefProfileCreate)
 
 	// ================================================================
 	// Admin Routes

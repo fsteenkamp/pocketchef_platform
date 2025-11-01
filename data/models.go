@@ -37,10 +37,11 @@ type Account struct {
 type Chef struct {
 	ID                  string           `json:"id"`
 	AccountID           string           `json:"account_id"`
-	DisplayName         pgtype.Text      `json:"display_name"`
+	DisplayName         string           `json:"display_name"`
 	Description         string           `json:"description"`
-	Picture             string           `json:"picture"`
-	PhoneNumber         string           `json:"phone_number"`
+	Bio                 []byte           `json:"bio"`
+	Picture             pgtype.Text      `json:"picture"`
+	PhoneNumber         pgtype.Text      `json:"phone_number"`
 	ChefStatus          string           `json:"chef_status"`
 	CreatedAt           pgtype.Timestamp `json:"created_at"`
 	UpdatedAt           pgtype.Timestamp `json:"updated_at"`

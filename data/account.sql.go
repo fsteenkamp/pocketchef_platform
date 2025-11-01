@@ -229,7 +229,7 @@ type AccountInitRow struct {
 	IsArchived          bool             `json:"is_archived"`
 	ArchivedAt          pgtype.Timestamp `json:"archived_at"`
 	ArchivedBy          pgtype.Text      `json:"archived_by"`
-	ChefProfile         []byte           `json:"chef_profile"`
+	ChefProfile         []map[string]any `json:"chef_profile"`
 }
 
 func (q *Queries) AccountInit(ctx context.Context, id string) (AccountInitRow, error) {

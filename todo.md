@@ -1,6 +1,6 @@
-- Create request chef button
-  - opens dialog to create chef profile
-  - only show this if the account does not have a chef profile
+- Create chef profile
+- Add
+
 - admin functionality
   - approve chef profile
   - reject with note

@@ -38,12 +38,14 @@ CREATE TABLE session (
 
 CREATE TABLE chef (
     id                          text primary key,
-    account_id                  text not null references account(id),
-    display_name                text,
+    account_id                  text unique not null references account(id),
+    display_name                text not null,
     description                 text not null,
-    picture                     text not null,
-    phone_number                text not null,
-    chef_status                 text not null check(chef_status in ('pending', 'rejected', 'verified', 'disabled')) default 'none',
+    bio                         jsonb not null default '{}',
+    profile_photo               text,
+    cover_photo                 text,
+    phone_number                text,
+    chef_status                 text not null check(chef_status in ('none', 'pending', 'rejected', 'verified', 'disabled')) default 'none',
     created_at                  timestamp not null default (now() at time zone 'utc'),
     updated_at                  timestamp not null default (now() at time zone 'utc'),
     archived_at                 timestamp,
@@ -56,6 +58,7 @@ CREATE TABLE chef (
     social_link_youtube         text
 );
 
+-- use later
 CREATE TABLE chef_profile_review (
     id                      text primary key,
     chef_id                 text not null references chef(id),
